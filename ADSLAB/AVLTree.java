@@ -1,4 +1,4 @@
-package ADSLAB;
+
 class AVLTree{
     class Node{
 
@@ -92,10 +92,77 @@ class AVLTree{
         return node;
     }
 
+    Node minvaluenode(Node node){
+        Node current =  node;
+        while(current.left !=null){
+            current = current.left;
+        }
+        return current;
+    }
+
+    Node delete(Node root,int val){
+        if(root==null){
+            return root;
+        }
+        if(val < root.val){
+            root.left = delete( root.left, val);
+        }else if(val > root.val){
+            root.right = delete(root.right, val);
+        }else{
+
+            if(root.left == null || root.right==null){
+                Node temp = (root.left !=null)? root.left:root.right;
+
+                if(temp == null){
+                    temp =root;
+                    root=null;
+
+                }else{
+                    root=temp;
+                }
+
+
+            }else{
+                Node temp = minvaluenode(root.right);
+
+                root.val = temp.val;
+                root.right = delete(root.right, temp.val);
+            }
+
+        }
+        if(root ==null){
+            return root;
+        }
+
+        root.height = max(height(root.left),height( root.right))+1;
+
+        int balance = getbalancefac(root );
+
+        if(balance > 1 && val > root.left.val){
+            root.left = leftrotate(root.left);
+            return rightrotate(root);
+
+        }if(balance > 1 && val < root.left.val){
+            return rightrotate(root);
+
+        }if(balance <-1 && val > root.right.val){
+            return leftrotate(root);
+
+        }if(balance<-1 && val < root.right.val){
+            root.right = rightrotate(root.right);
+            return leftrotate(root);
+
+        }
+
+        return root;
+
+    }
+
     void preorder(Node node){
        if(node!= null){
-        System.out.println(node.val);
+        
         preorder(node.left);
+        System.out.println(node.val);
         preorder( node.right);
        }
 
@@ -112,8 +179,8 @@ class AVLTree{
         root = app.insert(root,100);
         root = app.insert(root,15);
         app.preorder(root);
-        //a.delete(5);
-        //a.preorder(root);
+        app.delete(root,5);
+        app.preorder(root);
 
         //System.out.println(a.search(root,100));
 
