@@ -1,0 +1,99 @@
+The **Knuth-Morris-Pratt (KMP)** algorithm is a linear time complexity string matching algorithm. It improves upon the naive approach by preprocessing the pattern to create a partial match table (also known as the **prefix function** or **failure function**), which helps avoid unnecessary re-examinations of characters in the text.
+
+Here’s the Java implementation of the **Knuth-Morris-Pratt (KMP)** pattern matching algorithm:
+
+### Knuth-Morris-Pratt (KMP) Pattern Matching Algorithm
+
+```java
+class KMP {
+
+    // Function to preprocess the pattern and build the longest prefix-suffix (LPS) array
+    private static int[] buildLPSArray(String pattern) {
+        int[] lps = new int[pattern.length()];
+        int length = 0; // Length of the previous longest prefix suffix
+        int i = 1; // The current position we are computing in the LPS array
+        
+        // Build the LPS array
+        while (i < pattern.length()) {
+            if (pattern.charAt(i) == pattern.charAt(length)) {
+                length++;
+                lps[i] = length;
+                i++;
+            } else {
+                if (length != 0) {
+                    length = lps[length - 1];
+                } else {
+                    lps[i] = 0;
+                    i++;
+                }
+            }
+        }
+        return lps;
+    }
+
+    // KMP pattern matching algorithm
+    public static void KMPSearch(String text, String pattern) {
+        int[] lps = buildLPSArray(pattern);
+        int i = 0; // index for text
+        int j = 0; // index for pattern
+        
+        while (i < text.length()) {
+            if (pattern.charAt(j) == text.charAt(i)) {
+                i++;
+                j++;
+            }
+            
+            // If we've matched the entire pattern
+            if (j == pattern.length()) {
+                System.out.println("Pattern found at index " + (i - j));
+                j = lps[j - 1];
+            } 
+            // Mismatch after j matches
+            else if (i < text.length() && pattern.charAt(j) != text.charAt(i)) {
+                if (j != 0) {
+                    j = lps[j - 1]; // Move the pattern index to avoid unnecessary comparisons
+                } else {
+                    i++;
+                }
+            }
+        }
+    }
+
+    // Main method to test the algorithm
+    public static void main(String[] args) {
+        String text = "ABABDABACDABABCABAB";
+        String pattern = "ABABCABAB";
+
+        KMPSearch(text, pattern);
+    }
+}
+```
+
+### Explanation:
+
+1. **LPS Array**:
+   - The **LPS array** (Longest Prefix Suffix) is an array where each index `i` holds the length of the longest proper prefix of the substring `pattern[0..i]` that is also a suffix of the same substring.
+   - This array is built by iterating through the pattern and using previously computed values to avoid redundant checks.
+
+2. **KMP Search Algorithm**:
+   - The algorithm uses the **LPS array** to skip unnecessary character comparisons.
+   - When a mismatch occurs, instead of moving the text pointer forward by one character (as in the naive approach), it uses the LPS array to shift the pattern pointer efficiently.
+   - If a match is found (i.e., `j == pattern.length()`), the pattern's occurrence is reported, and the pattern pointer is adjusted using the LPS array to avoid re-checking already matched characters.
+
+3. **Time Complexity**:
+   - **Preprocessing the LPS array** takes O(m), where `m` is the length of the pattern.
+   - **Searching through the text** takes O(n), where `n` is the length of the text.
+   - Thus, the overall time complexity of the algorithm is O(n + m), which is more efficient than the naive O(n * m) approach.
+
+### Example:
+For the text `"ABABDABACDABABCABAB"` and the pattern `"ABABCABAB"`, the output will be:
+
+```
+Pattern found at index 10
+```
+
+This means the pattern `"ABABCABAB"` occurs in the text starting at index 10.
+
+### Key Points:
+- The **LPS array** helps the algorithm to avoid unnecessary comparisons.
+- KMP runs in linear time O(n + m), making it much faster than the naive approach for large texts or patterns.
