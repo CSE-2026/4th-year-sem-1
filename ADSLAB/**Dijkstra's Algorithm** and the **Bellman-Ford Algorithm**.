@@ -1,0 +1,266 @@
+The most commonly used shortest path algorithms are **Dijkstra's Algorithm** and the **Bellman-Ford Algorithm**. Here's an example of implementing **Dijkstra's Algorithm** in Java to find the shortest path in a graph:
+
+### Dijkstra's Algorithm in Java
+```java
+import java.util.*;
+
+class ShortestPathDijkstra {
+
+    // Function to find the vertex with the minimum distance value
+    static int findMinDistanceVertex(int[] distances, boolean[] visited, int vertices) {
+        int minDistance = Integer.MAX_VALUE;
+        int minVertex = -1;
+
+        for (int i = 0; i < vertices; i++) {
+            if (!visited[i] && distances[i] < minDistance) {
+                minDistance = distances[i];
+                minVertex = i;
+            }
+        }
+        return minVertex;
+    }
+
+    // Dijkstra's algorithm to find the shortest path from a source
+    static void dijkstra(int[][] graph, int source) {
+        int vertices = graph.length;
+        int[] distances = new int[vertices]; // Array to store shortest distance from source to each vertex
+        boolean[] visited = new boolean[vertices]; // Array to keep track of visited vertices
+
+        // Initialize distances to infinity and visited array to false
+        Arrays.fill(distances, Integer.MAX_VALUE);
+        distances[source] = 0;
+
+        // Process all vertices
+        for (int i = 0; i < vertices - 1; i++) {
+            // Pick the minimum distance vertex from the set of vertices not yet visited
+            int u = findMinDistanceVertex(distances, visited, vertices);
+            visited[u] = true;
+
+            // Update the distance of adjacent vertices
+            for (int v = 0; v < vertices; v++) {
+                if (!visited[v] && graph[u][v] != 0 && distances[u] != Integer.MAX_VALUE
+                        && distances[u] + graph[u][v] < distances[v]) {
+                    distances[v] = distances[u] + graph[u][v];
+                }
+            }
+        }
+
+        // Print the shortest distances
+        printSolution(distances, source);
+    }
+
+    // Utility function to print the solution
+    static void printSolution(int[] distances, int source) {
+        System.out.println("Vertex\tDistance from Source (" + source + ")");
+        for (int i = 0; i < distances.length; i++) {
+            System.out.println(i + "\t" + distances[i]);
+        }
+    }
+
+    // Main method to test the algorithm
+    public static void main(String[] args) {
+        // Example graph represented as an adjacency matrix
+        int[][] graph = {
+            {0, 10, 0, 30, 100},
+            {10, 0, 50, 0, 0},
+            {0, 50, 0, 20, 10},
+            {30, 0, 20, 0, 60},
+            {100, 0, 10, 60, 0}
+        };
+
+        int source = 0; // Source vertex
+        dijkstra(graph, source);
+    }
+}
+```
+
+### Explanation:
+1. **Graph Representation**:
+   - The graph is represented as an adjacency matrix, where `graph[i][j]` gives the weight of the edge between vertex `i` and `j`. If there's no edge, the value is 0.
+
+2. **Initialization**:
+   - All distances are initialized to infinity (`Integer.MAX_VALUE`) except for the source, which is set to 0.
+
+3. **Processing**:
+   - The algorithm picks the unvisited vertex with the smallest distance (greedy approach) and updates the distances of its adjacent vertices.
+
+4. **Output**:
+   - After processing all vertices, the shortest distances from the source to all other vertices are printed.
+
+### Example:
+For the input graph:
+```
+    0 ----10---- 1
+    |            |
+   30           50
+    |            |
+    3 ----20---- 2 ----10---- 4
+         \            /
+          ----60-----
+```
+The output for `source = 0` will be:
+```
+Vertex	Distance from Source (0)
+0	0
+1	10
+2	50
+3	30
+4	60
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Here is the **Bellman-Ford Algorithm** implementation in Java. The Bellman-Ford algorithm finds the shortest paths from a source vertex to all other vertices in a weighted graph. It can handle graphs with negative weights and can detect negative weight cycles.
+
+### Bellman-Ford Algorithm in Java
+
+```java
+import java.util.*;
+
+class BellmanFord {
+
+    // Define a class to represent edges in the graph
+    static class Edge {
+        int source, destination, weight;
+
+        Edge(int source, int destination, int weight) {
+            this.source = source;
+            this.destination = destination;
+            this.weight = weight;
+        }
+    }
+
+    // Function to implement the Bellman-Ford algorithm
+    public static void bellmanFord(List<Edge> edges, int vertices, int source) {
+        int[] distances = new int[vertices];
+        Arrays.fill(distances, Integer.MAX_VALUE);
+        distances[source] = 0;
+
+        // Relax all edges |V| - 1 times
+        for (int i = 0; i < vertices - 1; i++) {
+            for (Edge edge : edges) {
+                if (distances[edge.source] != Integer.MAX_VALUE && distances[edge.source] + edge.weight < distances[edge.destination]) {
+                    distances[edge.destination] = distances[edge.source] + edge.weight;
+                }
+            }
+        }
+
+        // Check for negative weight cycles
+        for (Edge edge : edges) {
+            if (distances[edge.source] != Integer.MAX_VALUE && distances[edge.source] + edge.weight < distances[edge.destination]) {
+                System.out.println("Graph contains negative weight cycle");
+                return;
+            }
+        }
+
+        // Print the shortest distances from the source
+        printSolution(distances);
+    }
+
+    // Function to print the shortest distances
+    public static void printSolution(int[] distances) {
+        System.out.println("Vertex \t\t Distance from Source");
+        for (int i = 0; i < distances.length; i++) {
+            if (distances[i] == Integer.MAX_VALUE) {
+                System.out.println(i + " \t\t INF");
+            } else {
+                System.out.println(i + " \t\t " + distances[i]);
+            }
+        }
+    }
+
+    // Main function to test the Bellman-Ford algorithm
+    public static void main(String[] args) {
+        int vertices = 5;
+        List<Edge> edges = new ArrayList<>();
+
+        // Add edges to the graph (source, destination, weight)
+        edges.add(new Edge(0, 1, -1));
+        edges.add(new Edge(0, 2, 4));
+        edges.add(new Edge(1, 2, 3));
+        edges.add(new Edge(1, 3, 2));
+        edges.add(new Edge(1, 4, 2));
+        edges.add(new Edge(3, 2, 5));
+        edges.add(new Edge(3, 1, 1));
+        edges.add(new Edge(4, 3, -3));
+
+        int source = 0; // Source vertex
+
+        // Run Bellman-Ford algorithm
+        bellmanFord(edges, vertices, source);
+    }
+}
+```
+
+### Explanation:
+
+1. **Edge Class**:
+   - Represents an edge in the graph with a source, destination, and weight.
+
+2. **Bellman-Ford Algorithm**:
+   - Initializes the distances to all vertices as infinity, except for the source vertex, which is set to 0.
+   - **Relaxation**: The algorithm updates the shortest path to each vertex by iterating over all edges and updating the distance if a shorter path is found.
+   - The algorithm repeats the relaxation process for `|V| - 1` times, where `|V|` is the number of vertices.
+   - After that, it checks for negative weight cycles by attempting to relax edges once more. If any edge can be relaxed, it indicates the presence of a negative weight cycle.
+
+3. **Print Solution**:
+   - After running the algorithm, it prints the shortest distance from the source to each vertex. If a vertex is not reachable, it displays `INF` (infinity).
+
+4. **Graph Representation**:
+   - The graph is represented by a list of edges, each defined by a source vertex, destination vertex, and edge weight.
+
+### Example Run:
+For the following graph with 5 vertices:
+```
+    0 ----(-1)---> 1
+     |            /  \
+     |           /    \
+    (4)        (3)   (2)
+     |         /       \
+     v       v          v
+    2 <---(5)-- 3 <---(-3)-- 4
+```
+
+The output of the program will be:
+```
+Vertex 	 Distance from Source
+0 	     0
+1 	     -1
+2 	     2
+3 	     -2
+4 	     1
+```
+
+### Negative Cycle Detection:
+If the graph contained a negative weight cycle, the algorithm would print:
+```
+Graph contains negative weight cycle
+```
+
+This happens because after `|V| - 1` relaxations, if any edge can still be relaxed, it indicates a negative cycle.
