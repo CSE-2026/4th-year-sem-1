@@ -1,0 +1,139 @@
+Here’s a program to implement **Depth-First Search (DFS)** and **Breadth-First Search (BFS)** graph traversal algorithms in Java.
+
+### Graph Traversal Algorithms in Java
+
+```java
+import java.util.*;
+
+// Class to represent a Graph
+class Graph {
+    int vertices;
+    LinkedList<Integer>[] adjList;
+
+    // Constructor
+    Graph(int v) {
+        vertices = v;
+        adjList = new LinkedList[v];
+        for (int i = 0; i < v; i++) {
+            adjList[i] = new LinkedList<>();
+        }
+    }
+
+    // Add an edge to the graph
+    void addEdge(int u, int v) {
+        adjList[u].add(v);  // Add v to u's list
+        adjList[v].add(u);  // Add u to v's list (for undirected graph)
+    }
+
+    // Depth-First Search (DFS) Traversal
+    void dfs(int start) {
+        boolean[] visited = new boolean[vertices];
+        System.out.println("DFS Traversal starting from vertex " + start + ":");
+        dfsUtil(start, visited);
+        System.out.println();
+    }
+
+    // Helper function for DFS
+    private void dfsUtil(int vertex, boolean[] visited) {
+        // Mark the current node as visited
+        visited[vertex] = true;
+        System.out.print(vertex + " ");
+
+        // Recur for all the vertices adjacent to this vertex
+        for (Integer neighbor : adjList[vertex]) {
+            if (!visited[neighbor]) {
+                dfsUtil(neighbor, visited);
+            }
+        }
+    }
+
+    // Breadth-First Search (BFS) Traversal
+    void bfs(int start) {
+        boolean[] visited = new boolean[vertices];
+        Queue<Integer> queue = new LinkedList<>();
+        
+        System.out.println("BFS Traversal starting from vertex " + start + ":");
+
+        // Mark the start vertex as visited and enqueue it
+        visited[start] = true;
+        queue.add(start);
+
+        while (!queue.isEmpty()) {
+            // Dequeue a vertex from the queue
+            int vertex = queue.poll();
+            System.out.print(vertex + " ");
+
+            // Enqueue all the adjacent vertices of the dequeued vertex
+            for (Integer neighbor : adjList[vertex]) {
+                if (!visited[neighbor]) {
+                    visited[neighbor] = true;
+                    queue.add(neighbor);
+                }
+            }
+        }
+        System.out.println();
+    }
+}
+
+public class GraphTraversal {
+    public static void main(String[] args) {
+        // Create a graph with 6 vertices (0 to 5)
+        Graph graph = new Graph(6);
+
+        // Add edges to the graph
+        graph.addEdge(0, 1);
+        graph.addEdge(0, 2);
+        graph.addEdge(1, 3);
+        graph.addEdge(1, 4);
+        graph.addEdge(2, 5);
+        
+        // Perform DFS and BFS starting from vertex 0
+        graph.dfs(0);
+        graph.bfs(0);
+    }
+}
+```
+
+### Explanation of the Code:
+
+1. **Graph Representation**:
+   - The graph is represented using an adjacency list (`LinkedList[] adjList`), where each vertex has a list of adjacent vertices. This is space-efficient and works well for sparse graphs.
+   
+2. **DFS (Depth-First Search)**:
+   - DFS starts at a given vertex and explores as far as possible along each branch before backtracking.
+   - It uses a recursive helper function `dfsUtil()` to visit each vertex. A `visited[]` array keeps track of visited vertices to avoid revisiting.
+   
+3. **BFS (Breadth-First Search)**:
+   - BFS starts at a given vertex and explores all its neighbors before moving on to the next level of neighbors.
+   - It uses a `Queue` to visit vertices level by level. Like DFS, a `visited[]` array ensures no vertex is visited more than once.
+
+4. **Helper Methods**:
+   - `addEdge(int u, int v)`: Adds an undirected edge between vertices `u` and `v`.
+   - `dfsUtil(int vertex, boolean[] visited)`: A recursive helper function to implement DFS traversal.
+   - `bfs(int start)`: Implements BFS using a queue.
+
+### Example Output:
+
+```
+DFS Traversal starting from vertex 0:
+0 1 3 4 2 5 
+
+BFS Traversal starting from vertex 0:
+0 1 2 3 4 5 
+```
+
+### How the Algorithms Work:
+
+1. **DFS Traversal**:
+   - The DFS starts at the specified vertex (`0` in this case). It visits the vertex and then recursively explores all unvisited neighbors. The recursion ensures that all vertices reachable from the starting vertex are visited.
+
+2. **BFS Traversal**:
+   - BFS uses a queue to visit the graph level by level. Starting from the initial vertex, it visits all its neighbors before moving on to their neighbors. The queue ensures that the exploration happens in the correct order.
+
+### Time Complexity:
+
+- **DFS and BFS** both have a time complexity of **O(V + E)**, where:
+  - `V` is the number of vertices.
+  - `E` is the number of edges.
+
+Both DFS and BFS traverse each vertex once and examine each edge once. Hence, the time complexity is linear in terms of the number of vertices and edges.
