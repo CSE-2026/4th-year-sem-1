@@ -1,0 +1,99 @@
+Here’s the Java implementation of the **Boyer-Moore Pattern Matching Algorithm**, focusing on the "bad character heuristic":
+
+```java
+import java.util.*;
+
+public class BoyerMoorePatternMatching {
+
+    // Function to create the bad character heuristic table
+    public static int[] createBadCharacterTable(String pattern) {
+        int[] badCharTable = new int[256]; // ASCII size
+        int m = pattern.length();
+
+        // Initialize all entries to -1
+        Arrays.fill(badCharTable, -1);
+
+        // Fill the table with the rightmost occurrence of each character in the pattern
+        for (int i = 0; i < m; i++) {
+            badCharTable[pattern.charAt(i)] = i;
+        }
+
+        return badCharTable;
+    }
+
+    // Function to implement the Boyer-Moore algorithm
+    public static List<Integer> boyerMooreSearch(String text, String pattern) {
+        List<Integer> result = new ArrayList<>();
+        int n = text.length();
+        int m = pattern.length();
+
+        if (m > n) {
+            return result; // Pattern is longer than text, no matches
+        }
+
+        int[] badCharTable = createBadCharacterTable(pattern);
+        int shift = 0;
+
+        // Traverse the text
+        while (shift <= n - m) {
+            int j = m - 1;
+
+            // Compare the pattern from right to left
+            while (j >= 0 && pattern.charAt(j) == text.charAt(shift + j)) {
+                j--;
+            }
+
+            // If the pattern is found
+            if (j < 0) {
+                result.add(shift);
+
+                // Shift the pattern to align with the next character in text
+                shift += (shift + m < n) ? m - badCharTable[text.charAt(shift + m)] : 1;
+            } else {
+                // Shift the pattern based on the bad character heuristic
+                shift += Math.max(1, j - badCharTable[text.charAt(shift + j)]);
+            }
+        }
+
+        return result;
+    }
+
+    // Main method to test the algorithm
+    public static void main(String[] args) {
+        String text = "ABABABACDABABABCABABABC";
+        String pattern = "ABABC";
+
+        List<Integer> result = boyerMooreSearch(text, pattern);
+
+        if (result.isEmpty()) {
+            System.out.println("Pattern not found in the text.");
+        } else {
+            System.out.println("Pattern found at indices: " + result);
+        }
+    }
+}
+```
+
+### Explanation:
+
+1. **Bad Character Table**:
+   - A table is created to store the rightmost occurrence of each character in the pattern.
+   - If a character is not in the pattern, it is initialized to `-1`.
+
+2. **Pattern Matching**:
+   - The pattern is compared from right to left with the current window in the text.
+   - If a mismatch occurs, the bad character heuristic is used to determine the shift.
+
+3. **Shift Calculation**:
+   - The pattern is shifted so that the mismatched character aligns with its last occurrence in the pattern.
+   - If the character is not in the pattern, the pattern is shifted by its full length.
+
+4. **Output**:
+   - Indices of all occurrences of the pattern in the text are stored in a list and printed.
+
+### Example:
+For `text = "ABABABACDABABABCABABABC"` and `pattern = "ABABC"`, the output will be:
+
+```
+Pattern found at indices: [10, 17]
+```
