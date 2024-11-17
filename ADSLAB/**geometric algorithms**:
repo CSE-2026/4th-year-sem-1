@@ -1,0 +1,185 @@
+Geometric algorithms are typically used for solving problems related to shapes, points, lines, and other geometric objects in a plane. Common problems include finding convex hulls, computing intersections, and checking whether points are inside polygons.
+
+Below is a Java program that implements a few common **geometric algorithms**:
+
+1. **Convex Hull (Graham Scan)**: Finds the smallest convex polygon that can contain a set of points.
+2. **Point-in-Polygon Test (Ray-Casting Algorithm)**: Determines whether a given point is inside a polygon.
+3. **Line Segment Intersection**: Finds if two line segments intersect.
+
+### Geometric Algorithms in Java
+
+```java
+import java.util.*;
+
+// Class to represent a Point in 2D space
+class Point {
+    int x, y;
+
+    Point(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+
+public class GeometricAlgorithms {
+
+    // 1. Convex Hull using Graham Scan Algorithm
+    public static List<Point> convexHull(List<Point> points) {
+        if (points.size() < 3) return points;
+
+        // Sort the points lexicographically (by x, then by y)
+        points.sort((p1, p2) -> p1.x == p2.x ? p1.y - p2.y : p1.x - p2.x);
+
+        // Build the lower hull 
+        List<Point> lower = new ArrayList<>();
+        for (Point p : points) {
+            while (lower.size() >= 2 && crossProduct(lower.get(lower.size() - 2), lower.get(lower.size() - 1), p) <= 0) {
+                lower.remove(lower.size() - 1);
+            }
+            lower.add(p);
+        }
+
+        // Build the upper hull
+        List<Point> upper = new ArrayList<>();
+        for (int i = points.size() - 1; i >= 0; i--) {
+            while (upper.size() >= 2 && crossProduct(upper.get(upper.size() - 2), upper.get(upper.size() - 1), points.get(i)) <= 0) {
+                upper.remove(upper.size() - 1);
+            }
+            upper.add(points.get(i));
+        }
+
+        // Remove the last point of each half because it is repeated at the beginning of the other half
+        lower.remove(lower.size() - 1);
+        upper.remove(upper.size() - 1);
+
+        // Concatenate lower and upper hull to get the full convex hull
+        lower.addAll(upper);
+        return lower;
+    }
+
+    // Cross product of vectors p1p2 and p1p3
+    public static int crossProduct(Point p1, Point p2, Point p3) {
+        return (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x);
+    }
+
+    // 2. Point-in-Polygon Test using Ray-Casting Algorithm
+    public static boolean isPointInsidePolygon(List<Point> polygon, Point p) {
+        int n = polygon.size();
+        if (n < 3) return false;
+
+        int count = 0;
+        int x = p.x, y = p.y;
+
+        for (int i = 0; i < n; i++) {
+            int x1 = polygon.get(i).x, y1 = polygon.get(i).y;
+            int x2 = polygon.get((i + 1) % n).x, y2 = polygon.get((i + 1) % n).y;
+
+            if (y > Math.min(y1, y2) && y <= Math.max(y1, y2) && x <= Math.max(x1, x2) && y1 != y2) {
+                int xIntersection = (y - y1) * (x2 - x1) / (y2 - y1) + x1;
+                if (x1 == x2 || x <= xIntersection) {
+                    count++;
+                }
+            }
+        }
+
+        return count % 2 == 1;
+    }
+
+    // 3. Line Segment Intersection Algorithm
+    public static boolean doLineSegmentsIntersect(Point p1, Point p2, Point q1, Point q2) {
+        int o1 = orientation(p1, p2, q1);
+        int o2 = orientation(p1, p2, q2);
+        int o3 = orientation(q1, q2, p1);
+        int o4 = orientation(q1, q2, p2);
+
+        return o1 != o2 && o3 != o4;
+    }
+
+    // Orientation of ordered triplet (p, q, r)
+    // 0 -> p, q and r are collinear
+    // 1 -> Clockwise
+    // 2 -> Counterclockwise
+    public static int orientation(Point p, Point q, Point r) {
+        int val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
+        if (val == 0) return 0;  // collinear
+        return (val > 0) ? 1 : 2;  // clockwise or counterclockwise
+    }
+
+    // Main method to test geometric algorithms
+    public static void main(String[] args) {
+        // Test 1: Convex Hull
+        List<Point> points = new ArrayList<>();
+        points.add(new Point(0, 3));
+        points.add(new Point(2, 2));
+        points.add(new Point(1, 1));
+        points.add(new Point(2, 1));
+        points.add(new Point(3, 0));
+        points.add(new Point(0, 0));
+        points.add(new Point(3, 3));
+
+        List<Point> convexHull = convexHull(points);
+        System.out.println("Convex Hull: ");
+        for (Point p : convexHull) {
+            System.out.println("(" + p.x + ", " + p.y + ")");
+        }
+
+        // Test 2: Point-in-Polygon
+        List<Point> polygon = new ArrayList<>();
+        polygon.add(new Point(0, 0));
+        polygon.add(new Point(5, 0));
+        polygon.add(new Point(5, 5));
+        polygon.add(new Point(0, 5));
+        Point point = new Point(3, 3);  // Inside polygon
+        System.out.println("\nPoint (" + point.x + ", " + point.y + ") is inside the polygon: " + isPointInsidePolygon(polygon, point));
+
+        point = new Point(6, 6);  // Outside polygon
+        System.out.println("Point (" + point.x + ", " + point.y + ") is inside the polygon: " + isPointInsidePolygon(polygon, point));
+
+        // Test 3: Line Segment Intersection
+        Point p1 = new Point(1, 1);
+        Point p2 = new Point(10, 1);
+        Point q1 = new Point(1, 2);
+        Point q2 = new Point(10, 2);
+
+        System.out.println("\nDo the line segments (" + p1.x + "," + p1.y + ") -> (" + p2.x + "," + p2.y + ") and (" + q1.x + "," + q1.y + ") -> (" + q2.x + "," + q2.y + ") intersect? " + doLineSegmentsIntersect(p1, p2, q1, q2));
+    }
+}
+```
+
+### Explanation of Geometric Algorithms:
+
+1. **Convex Hull (Graham Scan)**:
+   - The **Graham Scan** algorithm constructs the convex hull of a set of points by sorting the points and then building the hull in two phases (lower and upper).
+   - The `crossProduct` method is used to check the direction of the turn (clockwise or counterclockwise) to determine if a point is inside or outside the hull.
+   
+   - **Time Complexity**: **O(n log n)** due to sorting the points.
+
+2. **Point-in-Polygon (Ray-Casting Algorithm)**:
+   - This algorithm checks if a point is inside a polygon by drawing a ray from the point and counting how many times the ray intersects the edges of the polygon.
+   - If the count is odd, the point is inside; if even, the point is outside.
+
+   - **Time Complexity**: **O(n)**, where `n` is the number of edges in the polygon.
+
+3. **Line Segment Intersection**:
+   - This method checks if two line segments intersect by checking their orientations. If the orientations are different for the two pairs of points, the segments intersect.
+   - **Orientation** is determined by calculating the cross-product of vectors formed by three points.
+
+   - **Time Complexity**: **O(1)** per query.
+
+### Example Output:
+
+```
+Convex Hull: 
+(0, 0)
+(3, 0)
+(3, 3)
+(0, 3)
+
+Point (3, 3) is inside the polygon: true
+Point (6, 6) is inside the polygon: false
+
+Do the line segments (1,1) -> (10,1) and (1,2) -> (10,2) intersect? false
+```
+
+### Conclusion:
+This program demonstrates common geometric algorithms, such as finding the convex hull of a set of points, checking if a point is inside a polygon, and detecting intersections between line segments. These algorithms have a wide range of applications in computational geometry, robotics, computer graphics, and geographical information systems (GIS).
