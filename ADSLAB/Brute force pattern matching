@@ -1,0 +1,62 @@
+Here is a Java implementation of the Brute Force pattern matching algorithm:
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class BruteForcePatternMatching {
+
+    // Function to implement the brute force pattern matching algorithm
+    public static List<Integer> bruteForceSearch(String text, String pattern) {
+        int n = text.length();
+        int m = pattern.length();
+        List<Integer> matchIndices = new ArrayList<>();
+
+        // Traverse through the text
+        for (int i = 0; i <= n - m; i++) {
+            int j;
+
+            // Compare characters of the pattern with the text
+            for (j = 0; j < m; j++) {
+                if (text.charAt(i + j) != pattern.charAt(j)) {
+                    break;
+                }
+            }
+
+            // If the pattern is found, add the starting index to the list
+            if (j == m) {
+                matchIndices.add(i);
+            }
+        }
+
+        return matchIndices;
+    }
+
+    // Main method to test the algorithm
+    public static void main(String[] args) {
+        String text = "ABABABCABABABCABABABC";
+        String pattern = "ABABC";
+
+        List<Integer> result = bruteForceSearch(text, pattern);
+
+        if (result.isEmpty()) {
+            System.out.println("Pattern not found in the text.");
+        } else {
+            System.out.println("Pattern found at indices: " + result);
+        }
+    }
+}
+```
+
+### Explanation:
+1. **Text Traversal**: The outer loop iterates through the text from index 0 to `n - m`, where `n` is the length of the text and `m` is the length of the pattern.
+2. **Character Matching**: For each index in the text, the inner loop compares the substring of the text with the pattern character by character.
+3. **Pattern Match**: If the pattern matches fully, the starting index is added to the result list.
+4. **Output**: The result list contains the starting indices where the pattern was found in the text.
+
+### Example:
+For `text = "ABABABCABABABCABABABC"` and `pattern = "ABABC"`, the output will be:
+
+```
+Pattern found at indices: [2, 9, 16]
+```
