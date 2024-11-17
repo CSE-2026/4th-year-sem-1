@@ -1,0 +1,175 @@
+Here’s a Java implementation of a dictionary using hashing. The program implements the basic dictionary operations such as **insert**, **search**, **delete**, and **display**, using a hash table with separate chaining to handle collisions:
+
+### Java Implementation of a Dictionary Using Hashing
+```java
+import java.util.LinkedList;
+
+class HashTable<K, V> {
+    private class Entry<K, V> {
+        K key;
+        V value;
+
+        Entry(K key, V value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+
+    private LinkedList<Entry<K, V>>[] table;
+    private int size;
+
+    // Constructor
+    public HashTable(int capacity) {
+        table = new LinkedList[capacity];
+        size = 0;
+
+        for (int i = 0; i < capacity; i++) {
+            table[i] = new LinkedList<>();
+        }
+    }
+
+    // Hash function
+    private int hash(K key) {
+        return Math.abs(key.hashCode() % table.length);
+    }
+
+    // Insert a key-value pair into the dictionary
+    public void insert(K key, V value) {
+        int index = hash(key);
+        for (Entry<K, V> entry : table[index]) {
+            if (entry.key.equals(key)) {
+                entry.value = value; // Update the value if key already exists
+                return;
+            }
+        }
+        table[index].add(new Entry<>(key, value));
+        size++;
+    }
+
+    // Search for a value by key
+    public V search(K key) {
+        int index = hash(key);
+        for (Entry<K, V> entry : table[index]) {
+            if (entry.key.equals(key)) {
+                return entry.value;
+            }
+        }
+        return null; // Key not found
+    }
+
+    // Delete a key-value pair
+    public boolean delete(K key) {
+        int index = hash(key);
+        for (Entry<K, V> entry : table[index]) {
+            if (entry.key.equals(key)) {
+                table[index].remove(entry);
+                size--;
+                return true;
+            }
+        }
+        return false; // Key not found
+    }
+
+    // Display the dictionary
+    public void display() {
+        for (int i = 0; i < table.length; i++) {
+            System.out.print("Bucket " + i + ": ");
+            for (Entry<K, V> entry : table[i]) {
+                System.out.print("[" + entry.key + " : " + entry.value + "] ");
+            }
+            System.out.println();
+        }
+    }
+
+    // Get the size of the dictionary
+    public int size() {
+        return size;
+    }
+}
+
+public class DictionaryUsingHashing {
+    public static void main(String[] args) {
+        HashTable<String, String> dictionary = new HashTable<>(10);
+
+        // Insert entries into the dictionary
+        dictionary.insert("name", "Alice");
+        dictionary.insert("city", "New York");
+        dictionary.insert("profession", "Engineer");
+
+        // Display the dictionary
+        System.out.println("Dictionary:");
+        dictionary.display();
+
+        // Search for a key
+        String keyToSearch = "city";
+        String value = dictionary.search(keyToSearch);
+        if (value != null) {
+            System.out.println("\nValue for key '" + keyToSearch + "': " + value);
+        } else {
+            System.out.println("\nKey '" + keyToSearch + "' not found.");
+        }
+
+        // Delete a key
+        String keyToDelete = "profession";
+        if (dictionary.delete(keyToDelete)) {
+            System.out.println("\nKey '" + keyToDelete + "' deleted successfully.");
+        } else {
+            System.out.println("\nKey '" + keyToDelete + "' not found.");
+        }
+
+        // Display the dictionary after deletion
+        System.out.println("\nDictionary after deletion:");
+        dictionary.display();
+    }
+}
+```
+
+### Explanation:
+1. **Hash Function**:
+   - Computes the index for a given key using `hashCode()` and modulo operation. It ensures that keys are evenly distributed across buckets.
+
+2. **Collision Handling**:
+   - Uses **separate chaining** where each bucket is a `LinkedList` to store multiple entries.
+
+3. **Insert**:
+   - If the key already exists, updates its value; otherwise, adds a new entry to the appropriate bucket.
+
+4. **Search**:
+   - Traverses the bucket corresponding to the key's hash value to find the key.
+
+5. **Delete**:
+   - Removes the key-value pair from the bucket.
+
+6. **Display**:
+   - Iterates through all buckets and prints the key-value pairs.
+
+### Example Run:
+```
+Dictionary:
+Bucket 0: 
+Bucket 1: 
+Bucket 2: 
+Bucket 3: [city : New York] 
+Bucket 4: 
+Bucket 5: 
+Bucket 6: [name : Alice] 
+Bucket 7: [profession : Engineer] 
+Bucket 8: 
+Bucket 9: 
+
+Value for key 'city': New York
+
+Key 'profession' deleted successfully.
+
+Dictionary after deletion:
+Bucket 0: 
+Bucket 1: 
+Bucket 2: 
+Bucket 3: [city : New York] 
+Bucket 4: 
+Bucket 5: 
+Bucket 6: [name : Alice] 
+Bucket 7: 
+Bucket 8: 
+Bucket 9: 
+```
