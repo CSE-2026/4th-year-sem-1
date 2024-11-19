@@ -1,0 +1,15 @@
+import java.awt.Polygon;
+import java.awt.geom.Point2D;
+
+public class PointInPolygon {
+    public static void main(String[] args) {
+        int[] xPoints = {0, 4, 4, 0};
+        int[] yPoints = {0, 0, 4, 4};
+        Polygon polygon = new Polygon(xPoints, yPoints, xPoints.length);
+
+        Point2D point = new Point2D.Double(2, 2);
+        boolean isInside = polygon.contains(point);
+
+        System.out.println(isInside ? "The point is inside the polygon." : "The point is outside the polygon.");
+    }
+}
