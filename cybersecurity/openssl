@@ -1,0 +1,1 @@
+for /l %i in (1,1,10) do (openssl rand -base64 15 | openssl enc -base64 -A | powershell -Command "$input.Substring(1,12)")
