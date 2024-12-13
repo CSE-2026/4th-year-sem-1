@@ -1,0 +1,48 @@
+import string
+
+def caesar_decrypt(ciphertext, shift):
+    """
+    Decrypts a Caesar cipher encrypted text using the given shift.
+    """
+    alphabet = string.ascii_lowercase
+    decrypted_text = ''
+
+    for char in ciphertext:
+        if char.isalpha():
+            is_upper = char.isupper()
+            char = char.lower()
+
+            # Find the decrypted character
+            original_pos = alphabet.index(char)
+            decrypted_pos = (original_pos - shift) % 26
+            decrypted_char = alphabet[decrypted_pos]
+
+            # Preserve case (uppercase/lowercase)
+            decrypted_text += decrypted_char.upper() if is_upper else decrypted_char
+        else:
+            decrypted_text += char  # Keep non-alphabetic characters as they are
+
+    return decrypted_text
+
+def brute_force_caesar(ciphertext):
+    """
+    Performs a brute-force attack on a Caesar cipher encrypted text.
+    """
+    for shift in range(1, 26):  # Caesar cipher shifts are between 1 and 25
+        decrypted_text = caesar_decrypt(ciphertext, shift)
+        print(f"Shift {shift}: {decrypted_text}")
+
+        # Optionally, check for a specific keyword or format in the decrypted text
+        if 'expected_plaintext' in decrypted_text:  # Replace 'expected_plaintext' with a known keyword
+            print(f"Found possible plaintext with shift {shift}: {decrypted_text}")
+            return decrypted_text
+
+    print("Brute-force attack failed to find meaningful plaintext.")
+    return None
+
+if __name__ == "__main__":
+    # Example ciphertext (replace with actual Caesar cipher encrypted text)
+    ciphertext = "Khoor Zruog!"  # "Hello World!" encrypted with a shift of 3
+
+    # Perform brute-force attack
+    brute_force_caesar(ciphertext)
